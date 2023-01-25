@@ -84,6 +84,8 @@ public class HotkeyConfigUi : TextMenu {
         new(Hotkey.SpawnTowerViewer),
         new(Hotkey.ToggleFullscreen),
         new(Hotkey.ExportRoomTimes),
+        new(Hotkey.IncreaseStateIndex),
+        new(Hotkey.DecreaseStateIndex),
     }.ToDictionary(info => info.Hotkey, info => info);
 
     private bool closing;
@@ -200,8 +202,8 @@ public class HotkeyConfigUi : TextMenu {
         // 反射兼容 v1312
         // 避免输入文字时触发快捷键
         if (!typeof(MInput).GetFieldValue<bool>("ControllerHasFocus") && scene is Overworld {
-                Current: OuiFileNaming {UseKeyboardInput: true} or OuiModOptionString {UseKeyboardInput: true}
-            }) {
+            Current: OuiFileNaming { UseKeyboardInput: true } or OuiModOptionString { UseKeyboardInput: true }
+        }) {
             return false;
         }
 
@@ -307,7 +309,7 @@ public class HotkeyConfigUi : TextMenu {
         Reload(Selection);
     }
 
-    public override void Update() {
+      public override void Update() {
         base.Update();
         if (inputDelay > 0.0 && !remapping) {
             inputDelay -= Engine.DeltaTime;
@@ -483,6 +485,8 @@ public enum Hotkey {
     SpawnTowerViewer,
     ToggleFullscreen,
     ExportRoomTimes,
+    IncreaseStateIndex,
+    DecreaseStateIndex
 }
 
 internal static class HotkeysExtensions {

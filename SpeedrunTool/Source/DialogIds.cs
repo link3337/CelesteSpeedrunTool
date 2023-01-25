@@ -16,6 +16,11 @@ public static class DialogIds {
     public const string All = "SPEEDRUN_TOOL_ALL";
     // ReSharper restore UnusedMember.Global
 
+    // RoomState
+    public const string StateIndex = "SPEEDRUN_TOOL_STATE_INDEX";
+    public const string IncreaseStateIndex = "SPEEDRUN_TOOL_STATE_INDEX_INCREASE";
+    public const string DecreaseStateIndex = "SPEEDRUN_TOOL_STATE_INDEX_DECREASE";
+
     // RoomTimer
     public const string EndPointStyle = "SPEEDRUN_TOOL_END_POINT_STYLE";
     public const string NumberOfRooms = "SPEEDRUN_TOOL_NUMBER_OF_ROOMS";
