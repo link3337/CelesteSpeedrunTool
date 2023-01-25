@@ -1,14 +1,14 @@
+using Celeste.Mod.SpeedrunTool.Message;
+using Celeste.Mod.SpeedrunTool.Other;
+using Celeste.Mod.SpeedrunTool.Utils;
+using Force.DeepCloner;
+using Force.DeepCloner.Helpers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Celeste.Mod.SpeedrunTool.Message;
-using Celeste.Mod.SpeedrunTool.Other;
-using Celeste.Mod.SpeedrunTool.Utils;
-using Force.DeepCloner;
-using Force.DeepCloner.Helpers;
 using EventInstance = FMOD.Studio.EventInstance;
 
 namespace Celeste.Mod.SpeedrunTool.SaveLoad;
@@ -61,8 +61,13 @@ public sealed class StateManager {
     public bool SavedByTas { get; private set; }
     public bool LoadByTas { get; private set; }
     public Level SavedLevel => savedLevel;
+
+    private readonly Dictionary<int, KeyValuePair<Level, SaveData>> states = new();
+    private int saveStateIndex = 1;
+
     private Level savedLevel;
     private SaveData savedSaveData;
+
     private Task<DeepCloneState> preCloneTask;
     private FreezeType freezeType;
     private Process celesteProcess;
@@ -112,7 +117,7 @@ public sealed class StateManager {
         });
 
         Hotkey.LoadState.RegisterPressedAction(scene => {
-            if (scene is Level {Paused: false} && State == State.None) {
+            if (scene is Level { Paused: false } && State == State.None) {
                 if (IsSaved) {
                     LoadState(false);
                 } else {
@@ -122,17 +127,45 @@ public sealed class StateManager {
         });
 
         Hotkey.ClearState.RegisterPressedAction(scene => {
-            if (scene is Level {Paused: false} && State == State.None) {
+            if (scene is Level { Paused: false } && State == State.None) {
                 ClearStateAndShowMessage();
             }
         });
 
         Hotkey.SwitchAutoLoadState.RegisterPressedAction(scene => {
-            if (scene is Level {Paused: false}) {
+            if (scene is Level { Paused: false }) {
                 ModSettings.AutoLoadStateAfterDeath = !ModSettings.AutoLoadStateAfterDeath;
                 SpeedrunToolModule.Instance.SaveSettings();
                 string state = (ModSettings.AutoLoadStateAfterDeath ? DialogIds.On : DialogIds.Off).DialogClean();
                 PopupMessageUtils.ShowOptionState(DialogIds.AutoLoadStateAfterDeath.DialogClean(), state);
+            }
+        });
+
+        Hotkey.IncreaseStateIndex.RegisterPressedAction(scene => {
+            if (scene is Level) {
+                if (saveStateIndex < 99) {
+                    saveStateIndex++;
+                    if (states.TryGetValue(saveStateIndex, out var lvl)) {
+                        savedLevel = lvl.Key;
+                        savedSaveData = lvl.Value;
+                    }
+                }
+
+                PopupMessageUtils.ShowOptionState(DialogIds.StateIndex.DialogClean(), saveStateIndex.ToString());
+            }
+        });
+
+        Hotkey.DecreaseStateIndex.RegisterPressedAction(scene => {
+            if (scene is Level) {
+                if (saveStateIndex > 1) {
+                    saveStateIndex--;
+                    if (states.TryGetValue(saveStateIndex, out var lvl)) {
+                        savedLevel = lvl.Key;
+                        savedSaveData = lvl.Value;
+                    }
+                }
+
+                PopupMessageUtils.ShowOptionState(DialogIds.StateIndex.DialogClean(), saveStateIndex.ToString());
             }
         });
     }
@@ -241,6 +274,7 @@ public sealed class StateManager {
     }
 
     private bool SaveState(bool tas) {
+        Logger.Log(LogLevel.Info, "SAVE STATE", $"Triggered. Index {saveStateIndex}");
         if (Engine.Scene is not Level level) {
             return false;
         }
@@ -270,6 +304,10 @@ public sealed class StateManager {
         SaveLoadAction.OnSaveState(level);
         DeepClonerUtils.ClearSharedDeepCloneState();
         PreCloneSavedEntities();
+
+        Logger.Log(LogLevel.Info, "SAVE STATE", $"CAMERA Position {level.Camera.Position}");
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"GameplayRenderer Camera Position {GameplayRenderer.instance.Camera.Position}");
+
         if (tas) {
             State = State.None;
         } else {
@@ -277,6 +315,7 @@ public sealed class StateManager {
             level.Add(new WaitingEntity());
         }
 
+        states[saveStateIndex] = new KeyValuePair<Level, SaveData>(savedLevel, savedSaveData);
         return true;
     }
 
@@ -287,6 +326,14 @@ public sealed class StateManager {
     }
 
     private bool LoadState(bool tas) {
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"Triggered. Index {saveStateIndex}");
+        if (!states.TryGetValue(saveStateIndex, out var lvl)) {
+            return false;
+        }
+
+        savedLevel = lvl.Key;
+        savedSaveData = lvl.Value;
+
         if (Engine.Scene is not Level level) {
             return false;
         }
@@ -298,6 +345,12 @@ public sealed class StateManager {
         if (tas && !SavedByTas) {
             return false;
         }
+
+        // at least prevent a crash for now
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"Level cutscene playing: {level.InCutscene}");
+        //if (level.InCutscene) {
+        //    return false;
+        //}
 
         LoadByTas = tas;
         State = State.Loading;
@@ -315,6 +368,11 @@ public sealed class StateManager {
         PreCloneSavedEntities();
         GcCollect();
 
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"Lvl {level.Camera}");
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"GR {level.Camera}");
+        // set camera of gameplay renderer same as level
+        GameplayRenderer.instance.Camera = level.Camera;
+
         if (tas) {
             LoadStateComplete(level);
         } else {
@@ -324,8 +382,12 @@ public sealed class StateManager {
             DoScreenWipe(level);
         }
 
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"Camera Position {level.Camera.Position}");
+        Logger.Log(LogLevel.Info, "LOAD STATE", $"GameplayRenderer Camera Position {GameplayRenderer.instance.Camera.Position}");
+
         return true;
     }
+
 
     // 32 位应用且使用内存超过 2GB 才回收垃圾
     private void GcCollect() {
@@ -438,7 +500,7 @@ public sealed class StateManager {
         playingEventInstances.Clear();
 
         foreach (Component component in level.Entities.SelectMany(entity => entity.Components.ToArray())) {
-            if (component is SoundSource {Playing: true, instance: { } eventInstance}) {
+            if (component is SoundSource { Playing: true, instance: { } eventInstance }) {
                 playingEventInstances.Add(eventInstance);
             }
         }

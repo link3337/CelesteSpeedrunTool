@@ -72,6 +72,8 @@ public class SpeedrunToolSettings : EverestModuleSettings {
     public List<Keys> KeyboardSwitchRoomTimer { get; set; } = Hotkey.SwitchRoomTimer.GetDefaultKeys();
     public List<Keys> KeyboardIncreaseTimedRooms { get; set; } = Hotkey.IncreaseTimedRooms.GetDefaultKeys();
     public List<Keys> KeyboardDecreaseTimedRooms { get; set; } = Hotkey.DecreaseTimedRooms.GetDefaultKeys();
+    public List<Keys> KeyboardIncreaseStateIndex { get; set; } = Hotkey.IncreaseStateIndex.GetDefaultKeys();
+    public List<Keys> KeyboardDecreaseStateIndex { get; set; } = Hotkey.DecreaseStateIndex.GetDefaultKeys();
     public List<Keys> KeyboardSetEndPoint { get; set; } = Hotkey.SetEndPoint.GetDefaultKeys();
     public List<Keys> KeyboardSetAdditionalEndPoint { get; set; } = Hotkey.SetAdditionalEndPoint.GetDefaultKeys();
     public List<Keys> KeyboardCheckDeathStatistics { get; set; } = Hotkey.CheckDeathStatistics.GetDefaultKeys();
@@ -90,6 +92,8 @@ public class SpeedrunToolSettings : EverestModuleSettings {
     public List<Buttons> ControllerSwitchRoomTimer { get; set; } = new List<Buttons>();
     public List<Buttons> ControllerIncreaseTimedRooms { get; set; } = new List<Buttons>();
     public List<Buttons> ControllerDecreaseTimedRooms { get; set; } = new List<Buttons>();
+    public List<Buttons> ControllerIncreaseStateIndex { get; set; } = new List<Buttons>();
+    public List<Buttons> ControllerDecreaseStateIndex { get; set; } = new List<Buttons>();
     public List<Buttons> ControllerSetEndPoint { get; set; } = new List<Buttons>();
     public List<Buttons> ControllerSetAdditionalEndPoint { get; set; } = new List<Buttons>();
     public List<Buttons> ControllerSetRoomIdEndPoint { get; set; } = new List<Buttons>();
