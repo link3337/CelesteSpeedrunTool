@@ -10,6 +10,11 @@ SPEEDRUN_TOOL_ROOM_TIMER=   Room Timer
 SPEEDRUN_TOOL_STATE=        State
 SPEEDRUN_TOOL_MORE_OPTIONS= More Options
 
+# ================================== Room State =========================================
+SPEEDRUN_TOOL_STATE_INDEX=            State Index
+SPEEDRUN_TOOL_STATE_INDEX_INCREASE=   Increase State Index
+SPEEDRUN_TOOL_STATE_INDEX_DECREASE=   Decrease State Index
+
 # ================================== Room Timer Options ==================================
 SPEEDRUN_TOOL_NEXT_ROOM=                   Next Room
 SPEEDRUN_TOOL_CURRENT_ROOM=                Current Room
