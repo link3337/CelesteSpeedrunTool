@@ -60,7 +60,6 @@ public sealed class StateManager {
     public State State { get; private set; } = State.None;
     public bool SavedByTas { get; private set; }
     public bool LoadByTas { get; private set; }
-    public Level SavedLevel => savedLevel;
 
     private readonly Dictionary<int, KeyValuePair<Level, SaveData>> states = new();
     private int saveStateIndex = 1;
