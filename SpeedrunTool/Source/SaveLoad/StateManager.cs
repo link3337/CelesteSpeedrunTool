@@ -65,6 +65,7 @@ public sealed class StateManager {
     private int saveStateIndex = 1;
 
     private Level savedLevel;
+    
     private SaveData savedSaveData;
 
     private Task<DeepCloneState> preCloneTask;
