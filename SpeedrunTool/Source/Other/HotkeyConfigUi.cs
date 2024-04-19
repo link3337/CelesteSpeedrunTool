@@ -88,6 +88,8 @@ public class HotkeyConfigUi : TextMenu {
         new(Hotkey.DecreaseStateIndex),
     }.ToDictionary(info => info.Hotkey, info => info);
 
+    private static readonly Hotkey[] Hotkeys = (Hotkey[])Enum.GetValues(typeof(Hotkey));
+
     private bool closing;
     private float inputDelay;
     private bool remapping;
@@ -171,7 +173,7 @@ public class HotkeyConfigUi : TextMenu {
         orig();
 
         if (Engine.Scene is { } scene && ModSettings.Enabled && !TasUtils.Running) {
-            foreach (Hotkey hotkey in Enum.GetValues(typeof(Hotkey)).Cast<Hotkey>()) {
+            foreach (Hotkey hotkey in Hotkeys) {
                 HotkeyConfig hotkeyConfig = hotkey.GetHotkeyConfig();
                 if (Pressed(hotkey, scene)) {
                     hotkeyConfig.VirtualButton.Value.ConsumePress();
@@ -410,7 +412,6 @@ public class HotkeyConfigUi : TextMenu {
 
 public class HotkeyConfig {
     public readonly Keys[] DefaultKeys;
-
     public readonly Hotkey Hotkey;
     public readonly Lazy<VirtualButton> VirtualButton = new(() => new VirtualButton(0.08f));
     public Action<Scene> OnPressed;

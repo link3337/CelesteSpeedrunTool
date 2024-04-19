@@ -14,12 +14,22 @@ public static class DialogIds {
     public const string On = "SPEEDRUN_TOOL_ON";
     public const string Off = "SPEEDRUN_TOOL_OFF";
     public const string All = "SPEEDRUN_TOOL_ALL";
+    public const string Chapter = "SPEEDRUN_TOOL_CHAPTER";
+    public const string File = "SPEEDRUN_TOOL_FILE";
     // ReSharper restore UnusedMember.Global
 
     // RoomState
     public const string StateIndex = "SPEEDRUN_TOOL_STATE_INDEX";
     public const string IncreaseStateIndex = "SPEEDRUN_TOOL_STATE_INDEX_INCREASE";
     public const string DecreaseStateIndex = "SPEEDRUN_TOOL_STATE_INDEX_DECREASE";
+    
+    // Mod Menu
+    public const string SpeedrunTool = "SPEEDRUN_TOOL";
+    public const string Enabled = "SPEEDRUN_TOOL_ENABLED";
+    public const string RoomTimer = "SPEEDRUN_TOOL_ROOM_TIMER";
+    public const string State = "SPEEDRUN_TOOL_STATE";
+    public const string DeathStatistics = "SPEEDRUN_TOOL_DEATH_STATISTICS";
+    public const string MoreOptions = "SPEEDRUN_TOOL_MORE_OPTIONS";
 
     // RoomTimer
     public const string EndPointStyle = "SPEEDRUN_TOOL_END_POINT_STYLE";
@@ -29,14 +39,8 @@ public static class DialogIds {
     public const string AutoTurnOffRoomTimer = "SPEEDRUN_TOOL_AUTO_TURN_OFF_ROOM_TIMER";
     public const string RoomIdEndPoint = "SPEEDRUN_TOOL_ROOM_ID_END_POINT";
     public const string DisplayRoomGold = "SPEEDRUN_TOOL_DISPLAY_ROOM_GOLD";
-
-    // Mod Options
-    public const string SpeedrunTool = "SPEEDRUN_TOOL";
-    public const string Enabled = "SPEEDRUN_TOOL_ENABLED";
-    public const string RoomTimer = "SPEEDRUN_TOOL_ROOM_TIMER";
-    public const string State = "SPEEDRUN_TOOL_STATE";
-    public const string DeathStatistics = "SPEEDRUN_TOOL_DEATH_STATISTICS";
-    public const string MoreOptions = "SPEEDRUN_TOOL_MORE_OPTIONS";
+    public const string RoomTimerExportType = "SPEEDRUN_TOOL_ROOM_TIMER_EXPORT_TYPE";
+    public const string Clipboard = "SPEEDRUN_TOOL_CLIPBOARD";
 
     // State
     public const string FreezeAfterLoadState = "SPEEDRUN_TOOL_FREEZE_AFTER_LOAD_STATE";
@@ -101,12 +105,8 @@ public static class DialogIds {
     public const string SpawnTowerViewer = "SPEEDRUN_TOOL_SPAWN_TOWER_VIEWER";
     public const string ToggleFullscreen = "SPEEDRUN_TOOL_TOGGLE_FULLSCREEN";
     public const string ExportRoomTimes = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES";
-    public const string ExportRoomTimesSuccessTooltip = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_SUCCESS_TOOLTIP";
-    public const string ExportRoomTimesSuccessDialog = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_SUCCESS_DIALOG";
-    public const string ExportRoomTimesSuccessDialogBadeline = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_SUCCESS_DIALOG_BADELINE";
-    public const string ExportRoomTimesFailTooltip = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_FAIL_TOOLTIP";
-    public const string ExportRoomTimesFailDialog = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_FAIL_DIALOG";
-    public const string ExportRoomTimesFailDialogBadeline = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_FAIL_DIALOG_BADELINE";
+    public const string ExportRoomTimesSuccess = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_SUCCESS";
+    public const string ExportRoomTimesFail = "SPEEDRUN_TOOL_EXPORT_ROOM_TIMES_FAIL";
 
     // Death Statistics
     public const string MaxNumberOfDeathData = "SPEEDRUN_TOOL_MAX_NUMBER_OF_DEATH_DATA";
@@ -114,7 +114,6 @@ public static class DialogIds {
     public const string DeathStatisticsHeader = "SPEEDRUN_TOOL_DEATH_STATISTICS_HEADER";
     public const string DeathStatisticsHeaderDebug = "SPEEDRUN_TOOL_DEATH_STATISTICS_HEADER_DEBUG";
     public const string ClearDeathStatistics = "SPEEDRUN_TOOL_CLEAR_DEATH_STATISTICS";
-    public const string Chapter = "SPEEDRUN_TOOL_CHAPTER";
     public const string Room = "SPEEDRUN_TOOL_ROOM";
     public const string LostTime = "SPEEDRUN_TOOL_LOST_TIME";
     public const string CauseOfDeath = "SPEEDRUN_TOOL_CAUSE_OF_DEATH";
@@ -135,7 +134,7 @@ public static class DialogIds {
     public const string PopupMessageStyle = "SPEEDRUN_TOOL_POPUP_MESSAGE_STYLE";
     public const string OptionState = "SPEEDRUN_TOOL_OPTION_STATE";
     public const string EnableTimerOnAreaComplete = "SPEEDRUN_TOOL_ENABLE_TIMER_ON_AREA_COMPLETE";
-    public const string File = "SPEEDRUN_TOOL_FILE";
     public const string Hotkeys = "SPEEDRUN_TOOL_HOTKEYS";
     public const string HotkeysConfig = "SPEEDRUN_TOOL_HOTKEYS_CONFIG";
+    public const string UnlockCamera = "SPEEDRUN_TOOL_UNLOCK_CAMERA";
 }

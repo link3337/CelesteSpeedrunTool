@@ -216,7 +216,6 @@ public sealed class SaveLoadAction {
         DeathTrackerHelper.AddSupport();
         SupportCommunalHelper();
         SupportBrokemiaHelper();
-        StrawberryJamUtils.AddSupport();
         FrostHelperUtils.SupportFrostHelper();
         SupportVivHelper();
 
@@ -992,6 +991,7 @@ public sealed class SaveLoadAction {
 
         // 解决读档后冲进 DreamSpinner 会被刺死
         CloneModTypeFields("IsaGrabBag", "Celeste.Mod.IsaGrabBag.GrabBagModule", "ZipLineState", "playerInstance");
+        CloneModTypeFields("IsaGrabBag", "Celeste.Mod.IsaGrabBag.BadelineFollower", "booster", "LookForBubble");
     }
 
     private static void SupportSpirialisHelper() {

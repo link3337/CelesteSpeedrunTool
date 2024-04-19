@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Celeste.Mod.SpeedrunTool.DeathStatistics;
+using Celeste.Mod.SpeedrunTool.RoomTimer;
 using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.SpeedrunTool.Utils;
 using Mono.Cecil.Cil;
@@ -11,11 +13,14 @@ public static class RespawnRestartSpeed {
     private const string StopFastRestartFlag = nameof(StopFastRestartFlag);
 
     [Load]
-    private static void Load() {
+    private static void Hook() {
         using (new DetourContext {After = new List<string> {"*"}}) {
             On.Monocle.Engine.Update += RespawnSpeed;
         }
+    }
 
+    [Load]
+    private static void Load() {
         if (ModUtils.VanillaAssembly.GetType("Celeste.Level+<>c__DisplayClass150_0")?.GetMethodInfo("<GiveUp>b__0") is { } methodInfo) {
             methodInfo.ILHook(ModRestartMenu);
         } else if (ModUtils.VanillaAssembly.GetType("Celeste.Level+<>c__DisplayClass147_0")?.GetMethodInfo("<GiveUp>b__0") is { } methodInfo1312) {
@@ -79,19 +84,17 @@ public static class RespawnRestartSpeed {
     private static void ModRestartMenu(ILCursor ilCursor, ILContext il) {
         if (ilCursor.TryGotoNext(
                 MoveType.After,
-                ins => ins.OpCode == OpCodes.Ldfld && ins.Operand.ToString().EndsWith("::restartArea"),
-                ins => ins.OpCode == OpCodes.Brfalse_S
+                ins => ins.OpCode == OpCodes.Ldfld && ins.Operand.ToString().EndsWith("::restartArea")
             )) {
-            object skipScreenWipe = ilCursor.Prev.Operand;
-            ilCursor.EmitDelegate<Func<bool>>(() => {
-                if (ModSettings.Enabled && ModSettings.SkipRestartChapterScreenWipe && Engine.Scene is Level level && !TasUtils.Running) {
-                    Engine.Scene = new LevelLoader(level.Session.Restart());
-                    return true;
-                } else {
-                    return false;
+            ilCursor.Emit(OpCodes.Dup).EmitDelegate<Action<bool>>((restartArea) => {
+                if (restartArea && ModSettings.Enabled && ModSettings.SkipRestartChapterScreenWipe && Engine.Scene is Level level && !TasUtils.Running) {
+                    level.OnEndOfFrame += () => {
+                        Engine.Scene = new LevelLoader(level.Session.Restart());
+                        RoomTimerManager.TryTurnOffRoomTimer(); 
+                        DeathStatisticsManager.Clear();
+                    };
                 }
             });
-            ilCursor.Emit(OpCodes.Brtrue_S, skipScreenWipe);
         }
     }
 }

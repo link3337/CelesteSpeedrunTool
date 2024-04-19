@@ -20,6 +20,11 @@ public enum RoomTimerType {
     CurrentRoom
 }
 
+public enum RoomTimerExportType {
+    Clipboard,
+    File
+}
+
 public static class RoomTimerManager {
     private static readonly Color BestColor1 = Calc.HexToColor("fad768");
     private static readonly Color BestColor2 = Calc.HexToColor("cfa727");
@@ -41,6 +46,7 @@ public static class RoomTimerManager {
         On.Celeste.SaveData.RegisterCassette += SaveDataOnRegisterCassette;
         On.Celeste.LevelExit.ctor += LevelExitOnCtor;
         IL.Celeste.AutoSplitterInfo.Update += OverwriteAutosplitterChapterTime;
+        IL.Celeste.TotalStrawberriesDisplay.Update += MoveStrawberryDisplayDown;
         TryTurnOffRoomTimer();
         RegisterHotkeys();
     }
@@ -52,9 +58,10 @@ public static class RoomTimerManager {
         On.Celeste.Level.Update -= Timing;
         On.Celeste.SummitCheckpoint.Update -= UpdateTimerStateOnTouchFlag;
         On.Celeste.HeartGem.RegisterAsCollected -= HeartGemOnRegisterAsCollected;
-        On.Celeste.SaveData.RegisterCassette += SaveDataOnRegisterCassette;
+        On.Celeste.SaveData.RegisterCassette -= SaveDataOnRegisterCassette;
         On.Celeste.LevelExit.ctor -= LevelExitOnCtor;
         IL.Celeste.AutoSplitterInfo.Update -= OverwriteAutosplitterChapterTime;
+        IL.Celeste.TotalStrawberriesDisplay.Update -= MoveStrawberryDisplayDown;
     }
 
     private static void RegisterHotkeys() {
@@ -100,9 +107,10 @@ public static class RoomTimerManager {
         Hotkey.ExportRoomTimes.RegisterPressedAction(scene => {
             if (scene is Level) {
                 ExportRoomTimes();
-                PopupMessageUtils.Show(DialogIds.ExportRoomTimesSuccessTooltip.DialogClean(), DialogIds.ExportRoomTimesSuccessDialog);
+                PopupMessageUtils.Show(string.Format(Dialog.Get(DialogIds.ExportRoomTimesSuccess),
+                    Dialog.Get(DialogIds.Prefix + ModSettings.RoomTimerExportType.ToString().ToUpper())), null);
             } else {
-                PopupMessageUtils.Show(DialogIds.ExportRoomTimesFailTooltip.DialogClean(), DialogIds.ExportRoomTimesFailDialog);
+                PopupMessageUtils.Show(DialogIds.ExportRoomTimesFail.DialogClean(), null);
             }
         });
     }
@@ -194,6 +202,9 @@ public static class RoomTimerManager {
         // always run both timers; they'll just run in the background if not selected
         NextRoomTimerData.UpdateTimerState(endPoint);
         CurrentRoomTimerData.UpdateTimerState(endPoint);
+
+        NextRoomTimerData.FreezeAutosplitterTime();
+        CurrentRoomTimerData.FreezeAutosplitterTime();
     }
 
     public static void ResetTime() {
@@ -306,7 +317,21 @@ public static class RoomTimerManager {
         }
     }
 
-    private static void TryTurnOffRoomTimer() {
+    private static void MoveStrawberryDisplayDown(ILContext il) {
+        ILCursor cursor = new(il);
+
+        // If the room timer is visible, push the strawberry display down so that it doesn't overlap the timer
+        if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall<Engine>("get_DeltaTime") && instr.Next.MatchLdcR4(800))) {
+            cursor.EmitDelegate<Func<float, float>>((origTargetPos) => {
+                if (ModSettings.Enabled && ModSettings.RoomTimerType is not RoomTimerType.Off) {
+                    return 174f; // Same as regular file timer
+                }
+                return origTargetPos;
+            });
+        }
+    }
+
+    public static void TryTurnOffRoomTimer() {
         if (ModSettings.AutoResetRoomTimer) {
             SwitchRoomTimer(RoomTimerType.Off);
         }
@@ -318,7 +343,7 @@ public static class RoomTimerManager {
         if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdfld<Session>("Time"))) {
             cursor.EmitDelegate<Func<long, long>>((origTime) => {
                 if (ModSettings.Enabled && ModSettings.RoomTimerType is not RoomTimerType.Off) {
-                    return (ModSettings.RoomTimerType is RoomTimerType.NextRoom) ? NextRoomTimerData.Time : CurrentRoomTimerData.Time;
+                    return (ModSettings.RoomTimerType is RoomTimerType.NextRoom) ? NextRoomTimerData.AutosplitterTime : CurrentRoomTimerData.AutosplitterTime;
                 }
                 return origTime;
             });
@@ -362,18 +387,23 @@ public static class RoomTimerManager {
             }
         }
 
-        Directory.CreateDirectory(Path.Combine(Everest.PathGame, "SRTool_RoomTimeExports"));
-        using StreamWriter writer = File.CreateText(Path.Combine(Everest.PathGame, "SRTool_RoomTimeExports", $"{DateTime.Now:yyyyMMdd_HHmmss}.csv"));
-        writer.WriteLine(sb.ToString());
+        if (ModSettings.RoomTimerExportType is RoomTimerExportType.File) {
+            Directory.CreateDirectory(Path.Combine(Everest.PathGame, "SRTool_RoomTimeExports"));
+            using StreamWriter writer = File.CreateText(Path.Combine(Everest.PathGame, "SRTool_RoomTimeExports", $"{DateTime.Now:yyyyMMdd_HHmmss}.csv"));
+            writer.WriteLine(sb.ToString());
+        } else {
+            TextInput.SetClipboardText(sb.ToString());
+        }
     }
 
-    [Command("srt_exportroomtimes", "export room timer data to a .csv file in gamePath/SRTool_RoomTimeExports folder (SpeedrunTool)")]
+    [Command("srt_exportroomtimes", "export room timer data in csv format to clipboard or a file in gamePath/SRTool_RoomTimeExports folder (SpeedrunTool)")]
     public static void CmdExportRoomTimes() {
         if (Engine.Scene is Level) {
             ExportRoomTimes();
-            Engine.Commands.Log(DialogIds.ExportRoomTimesSuccessTooltip.DialogClean());
+            string msgID = DialogIds.Prefix + ModSettings.RoomTimerExportType.ToString().ToUpper();
+            Engine.Commands.Log(string.Format(Dialog.Get(DialogIds.ExportRoomTimesSuccess), msgID.DialogClean()));
         } else {
-            Engine.Commands.Log(DialogIds.ExportRoomTimesFailTooltip.DialogClean());
+            Engine.Commands.Log(DialogIds.ExportRoomTimesFail.DialogClean());
         }
     }
 }
